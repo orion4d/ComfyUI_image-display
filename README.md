@@ -56,7 +56,7 @@ This node acts as a powerful previewer and a utility tool, combining features of
     - `add_datetime`: To toggle the timestamp on the filename.
 5.  The node will display a preview of the processed image and pass it along to the next node in your workflow.
 
-6.  <div align="center">
+<div align="center">
 
 <h3>🌟 <strong>Show Your Support</strong></h3>
 
