@@ -30,7 +30,7 @@ This node acts as a powerful previewer and a utility tool, combining features of
     Navigate to your ComfyUI `custom_nodes` directory and clone this repository:
     ```bash
     cd ComfyUI/custom_nodes/
-    git clone 
+    git clone https://github.com/orion4d/ComfyUI_image-display.git
     ```
 
 2.  **Install Dependencies**
@@ -55,4 +55,22 @@ This node acts as a powerful previewer and a utility tool, combining features of
     - `filename`: To set a custom base name for the file.
     - `add_datetime`: To toggle the timestamp on the filename.
 5.  The node will display a preview of the processed image and pass it along to the next node in your workflow.
+
+6.  <div align="center">
+
+<h3>🌟 <strong>Show Your Support</strong></h3>
+
+<p>If this project helped you, please consider giving it a ⭐ on GitHub!</p>
+
+<p><strong>Made with ❤️ for the ComfyUI community</strong></p>
+
+<p><strong>by Orion4D</strong></p>
+
+<a href="https://ko-fi.com/orion4d">
+<img src="https://ko-fi.com/img/githubbutton_sm.svg" alt="Buy Me A Coffee" height="41" width="174">
+</a>
+
+</div>
+
+
 
