@@ -4,7 +4,7 @@ This repository contains a versatile custom node for ComfyUI, `Display Image wit
 
 This node acts as a powerful previewer and a utility tool, combining features often found in separate nodes into a single, convenient package.
 
-![Node Preview](httpse_preview_image.png)  <!-- Replace with a screenshot of your node in action -->
+![image](https://github.com/user-attachments/assets/2681bbab-5bec-44bf-bda2-049151ad9b24)
 
 ## Features
 
