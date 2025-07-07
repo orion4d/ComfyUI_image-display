@@ -33,7 +33,7 @@ class DisplayImageWithMaskNode:
                 "mask": ("IMAGE",),
                 "mask_url": ("STRING", {"multiline": False, "default": ""}),
                 "invert_mask": ("BOOLEAN", {"default": False}),
-                # -- NOUVELLES OPTIONS DE SAUVEGARDE --
+                # -- OPTIONS DE SAUVEGARDE (INCHANGÉES) --
                 "save_image": ("BOOLEAN", {"default": False}),
                 "save_path": ("STRING", {"multiline": False, "default": ""}),
                 "filename": ("STRING", {"multiline": False, "default": "DisplayWithMask"}),
@@ -41,8 +41,11 @@ class DisplayImageWithMaskNode:
             }
         }
 
-    RETURN_TYPES = ("IMAGE",)
-    RETURN_NAMES = ("processed_image",)
+    # --- MODIFICATION 1 : AJOUT DE LA SORTIE MASK ---
+    RETURN_TYPES = ("IMAGE", "MASK",)
+    RETURN_NAMES = ("processed_image", "mask_out",)
+    # --- FIN DE LA MODIFICATION 1 ---
+    
     FUNCTION = "process"
     CATEGORY = "utils/display"
 
@@ -86,46 +89,51 @@ class DisplayImageWithMaskNode:
                 final_mask_pil = ImageOps.invert(final_mask_pil)
             img_pil.putalpha(final_mask_pil)
 
-        # Sauvegarde permanente si l'option est cochée
+        # La logique de sauvegarde reste inchangée
         if save_image:
-            # -- NOUVELLE LOGIQUE DE SAUVEGARDE PERSONNALISÉE --
             output_dir = folder_paths.get_output_directory()
-            
-            # 1. Déterminer le dossier de destination
             if save_path and save_path.strip():
-                # Si un chemin est fourni, on le joint au dossier de sortie principal
                 full_save_path = os.path.join(output_dir, save_path)
             else:
                 full_save_path = output_dir
-
-            # 2. Créer le dossier s'il n'existe pas
             os.makedirs(full_save_path, exist_ok=True)
-            
-            # 3. Construire le nom du fichier
             base_filename = filename.strip() if filename and filename.strip() else "DisplayWithMask"
-            
             if add_datetime:
                 timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
                 final_filename = f"{base_filename}_{timestamp}.png"
             else:
                 final_filename = f"{base_filename}.png"
-
-            # 4. Combiner pour obtenir le chemin complet et sauvegarder
             full_path = os.path.join(full_save_path, final_filename)
             img_pil.save(full_path, "PNG")
             print(f"[DisplayImageWithMask] Image sauvegardée dans : {full_path}")
 
-        # Préparation de l'aperçu et de la sortie (inchangé)
+        # La logique de prévisualisation reste inchangée
         previews = []
         preview_filename = f"preview_{uuid.uuid4()}.png"
         temp_path = os.path.join(folder_paths.get_temp_directory(), preview_filename)
         img_pil.save(temp_path, "PNG")
         previews.append({"filename": preview_filename, "subfolder": "", "type": "temp"})
 
-        img_out_np = np.array(img_pil).astype(np.float32) / 255.0
-        img_out_tensor = torch.from_numpy(img_out_np).unsqueeze(0)
+        # --- MODIFICATION 2 : SÉPARATION DE L'IMAGE ET DU MASQUE POUR LES SORTIES ---
+        
+        # 1. Séparer l'image RGB et le canal Alpha (masque)
+        image_rgb = img_pil.convert("RGB")
+        mask_alpha = img_pil.getchannel('A')
 
-        return { "ui": {"images": previews}, "result": (img_out_tensor,) }
+        # 2. Convertir l'image RGB en tenseur IMAGE pour la première sortie
+        image_out_tensor = np.array(image_rgb).astype(np.float32) / 255.0
+        image_out_tensor = torch.from_numpy(image_out_tensor).unsqueeze(0)
+
+        # 3. Convertir le canal Alpha en tenseur MASK pour la deuxième sortie
+        mask_out_tensor = np.array(mask_alpha).astype(np.float32) / 255.0
+        mask_out_tensor = torch.from_numpy(mask_out_tensor)
+
+        # 4. Retourner la prévisualisation et les deux tenseurs dans "result"
+        return { 
+            "ui": {"images": previews}, 
+            "result": (image_out_tensor, mask_out_tensor,) 
+        }
+        # --- FIN DE LA MODIFICATION 2 ---
 
 NODE_CLASS_MAPPINGS = { "DisplayImageWithMask": DisplayImageWithMaskNode }
 NODE_DISPLAY_NAME_MAPPINGS = { "DisplayImageWithMask": "🖼️ Display Image with Mask" }
